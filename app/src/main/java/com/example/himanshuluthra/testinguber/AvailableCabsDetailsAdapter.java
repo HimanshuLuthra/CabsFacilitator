@@ -3,42 +3,61 @@ package com.example.himanshuluthra.testinguber;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.android.gms.internal.zzs.TAG;
+
 /**
  * Created by himanshuluthra on 07/03/17.
  */
 
 
-public class AvailableCabsDetails extends RecyclerView.Adapter<AvailableCabsDetails.CabsItemHolder> {
+public class AvailableCabsDetailsAdapter extends RecyclerView.Adapter<AvailableCabsDetailsAdapter.CabsItemHolder> {
 
     List<CabItem> mCabList;
     Context mContext;
 
-    AvailableCabsDetails(Context context) {
+    public AvailableCabsDetailsAdapter() {
         mCabList = new ArrayList<>();
+    }
+
+    public AvailableCabsDetailsAdapter(Context context) {
+        this();
         mContext = context;
+    }
+
+    public AvailableCabsDetailsAdapter(List<CabItem> cabItems) {
+        mCabList = cabItems;
     }
 
     @Override
     public CabsItemHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cab_item_layout, viewGroup, false);
-        CabsItemHolder cabsItemHolder = new CabsItemHolder(view);
-        return cabsItemHolder;
+        return new CabsItemHolder(view);
     }
 
     @Override
     public void onBindViewHolder(CabsItemHolder holder, int position) {
-        CabItem cabItem = null;
-        cabItem = mCabList.get(position);
-        holder.category.setText(cabItem.getCabType().getValue() + cabItem.getCabSubType());
-        holder.price.setText(String.valueOf(cabItem.getPrice()));
+        CabItem cabItem = mCabList.get(position);
+        holder.category.setText(cabItem.getCategory());
+        holder.price.setText(String.valueOf(cabItem.getLowEstimate() + "-" + cabItem.getHighEstimate()));
         holder.pickupTime.setText(String.valueOf(cabItem.getPickupTime()));
+    }
+
+    public void setCabList(List<CabItem> cabItems) {
+        mCabList = cabItems;
+    }
+
+    public void addCabItem(CabItem cabItem) {
+        mCabList.add(cabItem);
     }
 
     @Override
@@ -46,16 +65,14 @@ public class AvailableCabsDetails extends RecyclerView.Adapter<AvailableCabsDeta
         return mCabList.size();
     }
 
-    public static class CabsItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class CabsItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        CardView cardView;
         TextView category;
         TextView price;
         TextView pickupTime;
 
         CabsItemHolder(View cabItem) {
             super(cabItem);
-            cardView = (CardView)cabItem.findViewById(R.id.card);
             category = (TextView)cabItem.findViewById(R.id.category);
             price = (TextView)cabItem.findViewById(R.id.price);
             pickupTime = (TextView)cabItem.findViewById(R.id.pickupTime);
@@ -64,6 +81,7 @@ public class AvailableCabsDetails extends RecyclerView.Adapter<AvailableCabsDeta
 
         @Override
         public void onClick(View view) {
+            Toast.makeText(view.getContext(), "onClick " + getLayoutPosition(), Toast.LENGTH_SHORT).show();
 //            if(null != mItemClickListener) {
 //                mItemClickListener.onItemClick(view, getPosition());
 //            }

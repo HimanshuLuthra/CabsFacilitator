@@ -6,9 +6,11 @@ package com.example.himanshuluthra.testinguber;
 
 public class CabItem {
     private CabType mCabType;
-    private String mCabSubType;
-    private long mPrice;
+    private String mCategory;
+    private long mLowEstimate;
+    private long mHighEstimate;
     private long mPickupTime;
+    private float mSurgeMultiplier;
 
     public void setCabType(CabType cabType) {
         this.mCabType = cabType;
@@ -18,20 +20,36 @@ public class CabItem {
         return this.mCabType;
     }
 
-    public void setCabSubType(String cabSubType) {
-        this.mCabSubType = cabSubType;
+    public void setCategory(String cabSubType) {
+        this.mCategory = cabSubType;
     }
 
-    public String getCabSubType() {
-        return this.mCabSubType;
+    public String getCategory() {
+        return this.mCategory;
     }
 
-    public void setPrice() {
-        this.mPrice = mPrice;
+    public void setLowEstimate(long lowEstimate) {
+        this.mLowEstimate = lowEstimate;
     }
 
-    public long getPrice() {
-        return this.mPrice;
+    public long getLowEstimate() {
+        return mLowEstimate;
+    }
+
+    public void setHighEstimate(long highEstimate) {
+        this.mHighEstimate = highEstimate;
+    }
+
+    public long getHighEstimate() {
+        return mHighEstimate;
+    }
+
+    public void setSurgeMultiplier(float surgeMultiplier) {
+        this.mSurgeMultiplier = surgeMultiplier;
+    }
+
+    public float getSurgeMultiplier() {
+        return this.mSurgeMultiplier;
     }
 
     public void setPickupTime(long pickupTime) {

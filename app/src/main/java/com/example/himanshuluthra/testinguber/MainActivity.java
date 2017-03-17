@@ -6,11 +6,16 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.uber.sdk.android.core.UberSdk;
 import com.uber.sdk.android.core.auth.AccessTokenManager;
 import com.uber.sdk.android.core.auth.AuthenticationError;
@@ -33,28 +38,39 @@ import com.uber.sdk.rides.client.services.RidesService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationCallback, Callback<RideEstimate> {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, LocationCallback {
 
     String TAG = "MainActivity";
     LoginManager loginManager;
     RidesService service;
+    SurgeService testService;
+    Retrofit retrofit;
     AccessToken uberAccessToken;
     Button uberLoginButton;
     Button uberRequestButton;
-    List<RideEstimate> mRideEstimate;
-    List<Product> mProducts;
+    RecyclerView mRecyclerView;
+    List<CabItem> mCabItems;
+    AvailableCabsDetailsAdapter mAvailableCabsDetailsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         init();
     }
 
@@ -62,12 +78,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loginManager = null;
         uberAccessToken = null;
         service = null;
-        mRideEstimate = new ArrayList<>();
-        uberLoginButton = (Button)findViewById(R.id.LoginButton);
-        uberLoginButton.setOnClickListener(this);
+        mCabItems = new ArrayList<>();
+//        uberLoginButton = (Button)findViewById(R.id.LoginButton);
+//        uberLoginButton.setOnClickListener(this);
 
-        uberRequestButton = (Button)findViewById(R.id.RequestButton);
-        uberRequestButton.setOnClickListener(this);
+//        uberRequestButton = (Button)findViewById(R.id.RequestButton);
+//        uberRequestButton.setOnClickListener(this);
+
+        mRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        mAvailableCabsDetailsAdapter = new AvailableCabsDetailsAdapter(mCabItems);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mAvailableCabsDetailsAdapter);
 
         SessionConfiguration config = new SessionConfiguration.Builder()
                 // mandatory
@@ -112,6 +135,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocationRetriver.getInstance(this).getLocation(this);
     }
 
+    private void retrofitTest() {
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+        retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.1.180/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        testService = retrofit.create(SurgeService.class);
+        Call<String> call = testService.getStoryIds("feed", "testId");
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                String testing = response.body();
+                Log.d(TAG, testing);
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                int x = 9;
+            }
+        });
+    }
+
     private void getUserProfile() {
         service.getUserProfile().enqueue(new Callback<UserProfile>() {
             @Override
@@ -144,32 +191,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.LoginButton: {
-                loginManager.login(this);
-                loginManager.setRedirectForAuthorizationCode(true);
-                break;
-            }
-
-            case R.id.RequestButton: {
-
-                break;
-            }
-        }
+//        switch (view.getId()) {
+//            case R.id.LoginButton: {
+//                loginManager.login(this);
+//                loginManager.setRedirectForAuthorizationCode(true);
+//                break;
+//            }
+//
+//            case R.id.RequestButton: {
+//
+//                break;
+//            }
+//        }
     }
 
     private void requestCab() {
 
     }
 
-    private void retreiveFares(Location pickUpLocation, List<Product> products) {
-        for(Product product : mProducts) {
+    private void retreiveFares(Location pickUpLocation, final List<Product> products) {
+        for(final Product product : products) {
             RideRequestParameters rideRequestParameters = new RideRequestParameters.Builder().setPickupCoordinates(Float.parseFloat(String.valueOf(pickUpLocation.getLatitude())), Float.parseFloat(String.valueOf(pickUpLocation.getLongitude())))
-                    .setProductId(products.get(0).getProductId())
+                    .setProductId(product.getProductId())
                     .setDropoffCoordinates(28.38f, 77.12f)
                     .build();
-            service.estimateRide(rideRequestParameters).enqueue(this);
+            service.estimateRide(rideRequestParameters).enqueue(new Callback<RideEstimate>() {
+                @Override
+                public void onResponse(Call<RideEstimate> call, Response<RideEstimate> response) {
+                    if(response.isSuccessful()) {
+                        RideEstimate rideEstimate = response.body();
+                        if(rideEstimate != null && rideEstimate.getPrice() != null) {
+                            CabItem cabItem = new CabItem();
+                            cabItem.setCabType(CabType.UBER);
+                            cabItem.setCategory(product.getDisplayName());
+                            cabItem.setPickupTime(rideEstimate.getPickupEstimate() != null ? rideEstimate.getPickupEstimate() : 1);
+                            cabItem.setLowEstimate(rideEstimate.getPrice().getLowEstimate());
+                            cabItem.setHighEstimate(rideEstimate.getPrice().getHighEstimate());
+                            cabItem.setSurgeMultiplier(rideEstimate.getPrice().getSurgeMultiplier());
+                            mCabItems.add(cabItem);
+                            mAvailableCabsDetailsAdapter.notifyDataSetChanged();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Response Failure", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<RideEstimate> call, Throwable t) {
+
+                }
+            });
         }
+    }
+
+    private void initRecyclerView(List<CabItem> availableCabs) {
+
     }
 
     private void retreiveProducts(final Location location) {
@@ -177,8 +253,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onResponse(Call<ProductsResponse> call, Response<ProductsResponse> response) {
                 if(response.isSuccessful()) {
-                    mProducts = response.body().getProducts();
-                    retreiveFares(location, mProducts);
+                    List<Product> products = response.body().getProducts();
+                    retreiveFares(location, products);
                 } else {
                     Toast.makeText(getApplicationContext(), "Error Retreiving Products", Toast.LENGTH_SHORT).show();
                 }
@@ -190,26 +266,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(getApplicationContext(), "Error Retreiving Products", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    public void onResponse(Call<RideEstimate> call, Response<RideEstimate> response) {
-        if(response.isSuccessful()) {
-            Price price = response.body().getPrice();
-            String fareId = price.getFareId();
-            Float surgeMultiplier = price.getSurgeMultiplier();
-            Integer lowEstimate = price.getLowEstimate();
-            Integer highEstimate = price.getHighEstimate();
-            mRideEstimate.add(response.body());
-            if(mProducts.size() == mRideEstimate.size()) {
-                int x = 9;
-            }
-        }
-    }
-
-    @Override
-    public void onFailure(Call<RideEstimate> call, Throwable t) {
-
     }
 
     @Override
