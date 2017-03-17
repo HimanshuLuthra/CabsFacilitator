@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/cab_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal"
-
     >
 
     <TextView
@@ -16,8 +15,8 @@
         android:textColor="@android:color/black"
         android:textSize="20dp"
         android:textStyle="bold"
-        android:layout_marginLeft = "20dp"
-        android:layout_marginRight = "20dp"
+        android:paddingLeft="10dp"
+        android:layout_alignParentLeft="true"
         />
 
     <TextView
@@ -28,8 +27,7 @@
         android:textColor="@android:color/black"
         android:textSize="20dp"
         android:textStyle="bold"
-        android:layout_marginLeft = "20dp"
-        android:layout_marginRight = "20dp"
+        android:layout_centerHorizontal="true"
         />
 
     <TextView
@@ -40,8 +38,8 @@
         android:textColor="@android:color/black"
         android:textSize="20dp"
         android:textStyle="bold"
-        android:layout_marginLeft = "20dp"
-        android:layout_marginRight = "20dp"
+        android:paddingRight="10dp"
+        android:layout_alignParentEnd="true"
         />
 
-</LinearLayout>
+</RelativeLayout>

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button uberLoginButton;
     Button uberRequestButton;
     RecyclerView mRecyclerView;
+    RecyclerView.LayoutManager mLayoutManager;
     List<CabItem> mCabItems;
     AvailableCabsDetailsAdapter mAvailableCabsDetailsAdapter;
 
@@ -86,11 +88,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        uberRequestButton.setOnClickListener(this);
 
         mRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        fillCabList();
         mAvailableCabsDetailsAdapter = new AvailableCabsDetailsAdapter(mCabItems);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
+                mLayoutManager.Properties.orientation);
+        mRecyclerView.addItemDecoration(dividerItemDecoration);
+
         mRecyclerView.setAdapter(mAvailableCabsDetailsAdapter);
+        mAvailableCabsDetailsAdapter.notifyDataSetChanged();
 
         SessionConfiguration config = new SessionConfiguration.Builder()
                 // mandatory
@@ -188,6 +197,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
+    private void fillCabList() {
+        CabItem cabItem = new CabItem();
+        cabItem.setCabType(CabType.UBER);
+        cabItem.setCategory("Name12345");
+        cabItem.setPickupTime(12 );
+        cabItem.setLowEstimate(123);
+        cabItem.setHighEstimate(234);
+        mCabItems.add(cabItem);
+        for(int i = 0; i < 5; i++) {
+            cabItem = new CabItem();
+            cabItem.setCabType(CabType.UBER);
+            cabItem.setCategory("Name"+ (i+1));
+            cabItem.setPickupTime(12 + i);
+            cabItem.setLowEstimate(123 + i);
+            cabItem.setHighEstimate(234 + i);
+            mCabItems.add(cabItem);
+        }
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -287,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void locationResult(boolean result, Location location) {
         if(result) {
-            retreiveProducts(location);
+//            retreiveProducts(location);
         } else {
             //TODO
         }
