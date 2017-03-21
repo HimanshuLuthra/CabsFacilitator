@@ -6,7 +6,9 @@ package com.example.himanshuluthra.testinguber;
 
 public class CabItem {
     private CabType mCabType;
+    private String mProductId;
     private String mCategory;
+    private String mEstimate;
     private long mLowEstimate;
     private long mHighEstimate;
     private long mPickupTime;
@@ -20,12 +22,28 @@ public class CabItem {
         return this.mCabType;
     }
 
+    public void setProductId(String productId) {
+        this.mProductId = productId;
+    }
+
+    public String getProductId() {
+        return this.mProductId;
+    }
+
     public void setCategory(String cabSubType) {
         this.mCategory = cabSubType;
     }
 
     public String getCategory() {
         return this.mCategory;
+    }
+
+    public void setEstimate(String estimate) {
+        this.mEstimate = estimate;
+    }
+
+    public String getEstimate() {
+        return this.mEstimate;
     }
 
     public void setLowEstimate(long lowEstimate) {
@@ -57,7 +75,7 @@ public class CabItem {
     }
 
     public long getPickupTime() {
-        return this.mPickupTime;
+        return this.mPickupTime/60;
     }
 
 }

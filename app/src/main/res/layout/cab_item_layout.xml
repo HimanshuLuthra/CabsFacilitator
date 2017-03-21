@@ -13,8 +13,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold"
+        android:textSize="16dp"
         android:paddingLeft="10dp"
         android:layout_alignParentLeft="true"
         />
@@ -25,8 +24,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold"
+        android:textSize="16dp"
         android:layout_centerHorizontal="true"
         />
 
@@ -36,8 +34,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:textColor="@android:color/black"
-        android:textSize="20dp"
-        android:textStyle="bold"
+        android:textSize="16dp"
         android:paddingRight="10dp"
         android:layout_alignParentEnd="true"
         />

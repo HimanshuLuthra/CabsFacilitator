@@ -48,7 +48,7 @@ public class AvailableCabsDetailsAdapter extends RecyclerView.Adapter<AvailableC
     public void onBindViewHolder(CabsItemHolder holder, int position) {
         CabItem cabItem = mCabList.get(position);
         holder.category.setText(cabItem.getCategory());
-        holder.price.setText(String.valueOf(cabItem.getLowEstimate() + "-" + cabItem.getHighEstimate()));
+        holder.price.setText(cabItem.getEstimate());
         holder.pickupTime.setText(String.valueOf(cabItem.getPickupTime()));
     }
 
